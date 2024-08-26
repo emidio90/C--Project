@@ -68,7 +68,7 @@ class GestioneClienti{
         void salvaClienti() {
             ofstream file(percorso_al_file.c_str());
             if (file.is_open()) {
-                for (std::size_t i = 0; i < clienti.size(); i++) {
+                for (size_t i = 0; i < clienti.size(); i++) {
                     file << clienti[i].nome << "," << clienti[i].cognome << ","
                         << clienti[i].indirizzo << "," << clienti[i].telefono << endl;
                 }
@@ -77,7 +77,7 @@ class GestioneClienti{
         }
         void visualizzaClienti(){
             cout << "Elenco clienti esistenti:\n" << endl;
-            for (std::size_t i = 0; i < clienti.size(); i++) {
+            for (size_t i = 0; i < clienti.size(); i++) {
             clienti[i].stampaDettagli();
             cout << "---------------------------" << endl;
             }
@@ -97,6 +97,36 @@ class GestioneClienti{
             clienti.push_back(cliente);
             salvaClienti();
             printf("Cliente inserito con successo");
+        }
+        void modificaCliente(string& nome, string& cognome){
+            for (size_t i = 0; i < clienti.size(); i++) {                           //scorre fra tutti i clienti
+                if (clienti[i].nome == nome && clienti[i].cognome == cognome) {  //se i dati combaciano modifica il cliente
+                    cout << "Modifica nome (attuale: " << clienti[i].nome << "): ";
+                    cin.ignore();                                                //ignora newline precedente
+                    getline(cin, clienti[i].nome);
+                    cout << "Modifica cognome (attuale: " << clienti[i].cognome << "): ";
+                    getline(cin, clienti[i].cognome);
+                    cout << "Modifica indirizzo (attuale: " << clienti[i].indirizzo << "): ";
+                    getline(cin, clienti[i].indirizzo);
+                    cout << "Modifica telefono (attuale: " << clienti[i].telefono << "): ";
+                    cin >> clienti[i].telefono;
+                    salvaClienti();
+                    cout << "Cliente modificato con successo." << endl;
+                    return;
+                }
+            }
+            cout << "Cliente non trovato." << endl;
+        }
+        void rimuoviCliente(string& nome, string& cognome){
+            for (size_t i = 0; i < clienti.size(); i++) {                           //scorre fra tutti i clienti
+                if (clienti[i].nome == nome && clienti[i].cognome == cognome) {  //se i dati combaciano
+                    clienti.erase(clienti.begin() + i);                          //rimuove il cliente dal vettore clienti
+                    salvaClienti();
+                    cout << "Cliente rimosso con successo." << endl;
+                    return;
+                }
+            }
+            cout << "Cliente non trovato." << endl;
         }
 };
 
@@ -119,27 +149,50 @@ void print_menu(){
     printf("3) Cerca cliente per nome o cognome\n");
     printf("4) Modifica o rimuovi cliente\n");
 }
-void make_choice(GestioneClienti& gestione){
+void make_choice(GestioneClienti& gestione) {
     int choice;
-    std::set<int> mySet {1,2,3,4};
-    printf("\nSelezione un'opzione: ");
-    scanf("%d", &choice);
-    if (mySet.find(choice) != mySet.end()){
-        switch (choice)
-        {
+    set<int> validChoices {1, 2, 3, 4};
+    
+    printf("\nSeleziona un'opzione: ");
+    while (true) {
+        if (scanf("%d", &choice) == 1 && validChoices.find(choice) != validChoices.end()) {
+            break;  // L'input è valido, usciamo dal ciclo
+        } else {
+            printf("Scelta non valida. Inserisci un numero compreso fra 1 e 4: ");
+            scanf("%*[^\n]");  // Consuma tutto fino al prossimo newline (pulisce il buffer)
+            scanf("%*c");      // Consuma il carattere newline
+        }
+    }
+
+    string nome, cognome;
+    char scelta;
+
+    switch (choice) {
         case 1:
             gestione.visualizzaClienti();
             break;
         case 2:
             gestione.aggiungiCliente();
             break;
+        case 3:
+            break;
+        case 4:
+            cout << "Inserisci nome del cliente: ";
+            cin >> nome;
+            cout << "Inserisci cognome del cliente: ";
+            cin >> cognome;
+            cout << "Inserisci m per modificare o r per rimuovere un cliente: ";
+            cin >> scelta;
+            if (scelta == 'm') {
+                gestione.modificaCliente(nome, cognome);
+            } else if (scelta == 'r') {
+                gestione.rimuoviCliente(nome, cognome);
+            } else {
+                cout << "Scelta non valida. Riprova." << endl;
+            }
+            break;
         default:
             break;
-        }
-        make_choice(gestione);
     }
-    else{
-        printf("Scelta non valida. Inserisci un numero compreso fra 1 e 4.");
-        make_choice(gestione);
-    }
+    make_choice(gestione);
 }
