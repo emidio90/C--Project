@@ -3,6 +3,26 @@
 #include <string>
 using namespace std;
 
+class Interazione {
+    public:
+        string tipo;         // Tipo di interazione ("Appuntamento", "Contratto",...)
+        string data;         
+        string descrizione;  
+
+        Interazione() {}
+
+        Interazione(string _tipo, string _data, string _descrizione){
+            tipo = _tipo;
+            data = _data;
+            descrizione = _descrizione;
+        }
+
+        void stampaDettagli() const {
+            cout << "Tipo: " << tipo << endl;
+            cout << "Data: " << data << endl;
+            cout << "Descrizione: " << descrizione << endl;
+        }
+};
 class Cliente{
     public:
         string nome, cognome, indirizzo, telefono;
@@ -187,27 +207,6 @@ class GestioneClienti{
             cout << "Cliente non trovato." << endl;
         }
     }
-};
-
-class Interazione {
-    public:
-        string tipo;         // Tipo di interazione ("Appuntamento", "Contratto",...)
-        string data;         
-        string descrizione;  
-
-        Interazione() {}
-
-        Interazione(string _tipo, string _data, string _descrizione){
-            tipo = _tipo;
-            data = _data;
-            descrizione = _descrizione;
-        }
-
-        void stampaDettagli() const {
-            cout << "Tipo: " << tipo << endl;
-            cout << "Data: " << data << endl;
-            cout << "Descrizione: " << descrizione << endl;
-        }
 };
 
 void print_menu();
