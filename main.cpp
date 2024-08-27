@@ -6,6 +6,7 @@ using namespace std;
 class Cliente{
     public:
         string nome, cognome, indirizzo, telefono;
+        vector<Interazione> interazioni;
         Cliente(){}
         Cliente(string _nome, string _cognome, string _indirizzo, string _telefono){
             nome = _nome;
@@ -13,11 +14,16 @@ class Cliente{
             indirizzo = _indirizzo;
             telefono = _telefono;
         }
-       void stampaDettagli() {
+        void stampaDettagli() {
             cout << "Nome: " << nome << endl;
             cout << "Cognome: " << cognome << endl;
             cout << "Indirizzo: " << indirizzo << endl;
             cout << "Telefono: " << telefono << endl;
+            cout << "Interazioni:" << endl;
+            for (const auto& interazione : interazioni) {
+                interazione.stampaDettagli();
+                cout << "---------------------------" << endl;
+            }
         }
         void setNome(string _nome){
             nome = _nome;
@@ -30,6 +36,19 @@ class Cliente{
         }
         void setTelefono(string _telefono){
             telefono = _telefono;
+        }
+        void aggiungiInterazione(const Interazione& interazione) {
+        interazioni.push_back(interazione);
+        }
+        void visualizzaInterazioni() const {
+            if (interazioni.empty()) {
+                cout << "Nessuna interazione presente." << endl;
+            } else {
+                for (const auto& interazione : interazioni) {
+                    interazione.stampaDettagli();
+                    cout << "---------------------------" << endl;
+                }
+            }
         }
 };
 class GestioneClienti{
@@ -128,6 +147,67 @@ class GestioneClienti{
             }
             cout << "Cliente non trovato." << endl;
         }
+        void cercaCliente(string& nome, string& cognome) {
+        bool trovato = false;
+        for (size_t i = 0; i < clienti.size(); i++) {
+            if (clienti[i].nome == nome && clienti[i].cognome == cognome) {
+                clienti[i].stampaDettagli();
+                trovato = true;
+                break;  
+            }
+        }
+        if (!trovato) {
+            cout << "Cliente non trovato." << endl;
+        }
+    }
+    Cliente* cercaCliente(const string& nome, const string& cognome) {
+        for (auto& cliente : clienti) {
+            if (cliente.nome == nome && cliente.cognome == cognome) {
+                return &cliente;  // Restituisce un puntatore al cliente trovato
+            }
+        }
+        return nullptr;  // Cliente non trovato
+    }
+
+    void aggiungiInterazioneCliente(const string& nome, const string& cognome, const Interazione& interazione) {
+        Cliente* cliente = cercaCliente(nome, cognome);
+        if (cliente) {
+            cliente->aggiungiInterazione(interazione);
+            cout << "Interazione aggiunta con successo." << endl;
+        } else {
+            cout << "Cliente non trovato." << endl;
+        }
+    }
+
+    void visualizzaInterazioniCliente(const string& nome, const string& cognome) {
+        Cliente* cliente = cercaCliente(nome, cognome);
+        if (cliente) {
+            cliente->visualizzaInterazioni();
+        } else {
+            cout << "Cliente non trovato." << endl;
+        }
+    }
+};
+
+class Interazione {
+    public:
+        string tipo;         // Tipo di interazione ("Appuntamento", "Contratto",...)
+        string data;         
+        string descrizione;  
+
+        Interazione() {}
+
+        Interazione(string _tipo, string _data, string _descrizione){
+            tipo = _tipo;
+            data = _data;
+            descrizione = _descrizione;
+        }
+
+        void stampaDettagli() const {
+            cout << "Tipo: " << tipo << endl;
+            cout << "Data: " << data << endl;
+            cout << "Descrizione: " << descrizione << endl;
+        }
 };
 
 void print_menu();
@@ -148,23 +228,25 @@ void print_menu(){
     printf("2) Inserisci cliente\n");
     printf("3) Cerca cliente per nome o cognome\n");
     printf("4) Modifica o rimuovi cliente\n");
+    printf("5) Visualizza le interazione di un cliente\n");
+    printf("6) Aggiungi interazioni ad un cliente\n");
 }
 void make_choice(GestioneClienti& gestione) {
     int choice;
-    set<int> validChoices {1, 2, 3, 4};
+    set<int> validChoices {1, 2, 3, 4, 5, 6};
     
     printf("\nSeleziona un'opzione: ");
     while (true) {
         if (scanf("%d", &choice) == 1 && validChoices.find(choice) != validChoices.end()) {
-            break;  // L'input è valido, usciamo dal ciclo
+            break;  // L'input è valido
         } else {
-            printf("Scelta non valida. Inserisci un numero compreso fra 1 e 4: ");
-            scanf("%*[^\n]");  // Consuma tutto fino al prossimo newline (pulisce il buffer)
-            scanf("%*c");      // Consuma il carattere newline
+            printf("Scelta non valida. Inserisci un numero compreso fra 1 e 6: ");
+            scanf("%*[^\n]");  // pulisce il buffer
+            scanf("%*c");      // cancella il carattere newline
         }
     }
 
-    string nome, cognome;
+    string nome, cognome, tipo, data, descrizione;
     char scelta;
 
     switch (choice) {
@@ -175,6 +257,11 @@ void make_choice(GestioneClienti& gestione) {
             gestione.aggiungiCliente();
             break;
         case 3:
+            cout << "Inserisci nome del cliente: ";
+            cin >> nome;
+            cout << "Inserisci cognome del cliente: ";
+            cin >> cognome;
+            gestione.cercaCliente(nome, cognome);
             break;
         case 4:
             cout << "Inserisci nome del cliente: ";
@@ -190,6 +277,27 @@ void make_choice(GestioneClienti& gestione) {
             } else {
                 cout << "Scelta non valida. Riprova." << endl;
             }
+            break;
+        case 5:
+            cout << "Inserisci nome del cliente: ";
+            cin >> nome;
+            cout << "Inserisci cognome del cliente: ";
+            cin >> cognome;
+            gestione.visualizzaInterazioniCliente(nome, cognome);
+            break;
+        case 6:
+            cout << "Inserisci nome del cliente: ";
+            cin >> nome;
+            cout << "Inserisci cognome del cliente: ";
+            cin >> cognome;
+            cout << "Inserisci il tipo di interazione: ";
+            cin.ignore();  
+            getline(cin, tipo);
+            cout << "Inserisci la data dell'interazione: ";
+            getline(cin, data);
+            cout << "Inserisci una descrizione: ";
+            getline(cin, descrizione);
+            gestione.aggiungiInterazioneCliente(nome, cognome, Interazione(tipo, data, descrizione));
             break;
         default:
             break;
